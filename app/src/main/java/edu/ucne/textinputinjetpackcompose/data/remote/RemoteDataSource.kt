@@ -1,4 +1,7 @@
 package edu.ucne.textinputinjetpackcompose.data.remote
 
-class RemoteDataSource {
+import javax.inject.Inject
+
+class RemoteDataSource @Inject constructor(
+) {
 }
