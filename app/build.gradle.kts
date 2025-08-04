@@ -30,62 +30,67 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
 
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3" // necesaria para el nuevo TextField
+    }
 }
 
-
 dependencies {
-    //navigation
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.serialization.json)
+    // Compose + Material3 + Foundation (nuevo TextField)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.material3) // 1.5.0-alpha01
+    implementation(libs.androidx.foundation) // 1.8.0-alpha01
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
 
-    //room
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation(libs.androidx.junit.ktx)
+    // Material clásico (opcional)
+    implementation("androidx.compose.material3:material3:1.5.0-alpha01") // última versión estable necesaria
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Activity + Lifecycle
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.ktx)
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
-
-    implementation("androidx.compose.foundation:foundation:1.5.0")
-
-    //optional
-    implementation("androidx.room:room-ktx:2.6.1")
-    implementation("androidx.compose.material3:material3:1.1.0-alpha02")
-    implementation ("androidx.compose.material:material:1.4.0")
-    implementation("androidx.compose.material:material:1.3.1") // Usa la última versión
-
-
-    //Hilt
+    // Hilt
     implementation("com.google.dagger:hilt-android:2.51")
     ksp("com.google.dagger:hilt-android-compiler:2.51")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
-    //Retrofit
+    // Retrofit + Moshi + OkHttp
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("androidx.compose.material:material-icons-extended:1.6.0")
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
+    // Kotlinx Serialization
+    implementation(libs.kotlinx.serialization.json)
+
+    // Test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
