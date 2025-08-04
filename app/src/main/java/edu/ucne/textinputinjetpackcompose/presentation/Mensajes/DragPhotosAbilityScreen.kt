@@ -6,11 +6,13 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +21,7 @@ import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,9 +39,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -70,116 +76,137 @@ fun MensajeBodyScreenDrag(
 ) {
     val inputState = rememberTextFieldState()
     val mensajes = uiState.mensajes.sortedBy { it.fecha }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Chats", color = MaterialTheme.colorScheme.onSecondary) },
-                navigationIcon = {
-                    IconButton(onClick = goBack) {
-                        Icon(
-                            Icons.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
-                )
-            )
-        },
-        bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .contentReceiver { transferableContent ->
-                        viewModel.handleContent(transferableContent)
-                    }
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    listOf("User", "Operator").forEach { tipo ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        ) {
-                            RadioButton(
-                                selected = uiState.tipoRemitente == tipo,
-                                onClick = { onEvent(MensajeEvent.TipoRemitenteChange(tipo)) }
+    val selectedImages = viewModel.selectedImages
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .contentReceiver { transferableContent ->
+                viewModel.handleContent(transferableContent)
+            }
+    ){
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Chats", color = MaterialTheme.colorScheme.onSecondary) },
+                    navigationIcon = {
+                        IconButton(onClick = goBack) {
+                            Icon(
+                                Icons.Filled.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onSecondary
                             )
-                            Text(text = tipo)
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                )
+            },
+            bottomBar = {
+                Column{
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        listOf("User", "Operator").forEach { tipo ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(horizontal = 8.dp)
+                            ) {
+                                RadioButton(
+                                    selected = uiState.tipoRemitente == tipo,
+                                    onClick = { onEvent(MensajeEvent.TipoRemitenteChange(tipo)) }
+                                )
+                                Text(text = tipo)
+                            }
                         }
                     }
-                }
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextField(
-                        state = inputState,
-                        lineLimits = TextFieldLineLimits.SingleLine,
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        placeholder = {
-                            Text(
-                                "Escribe un mensaje...",
-                                color = MaterialTheme.colorScheme.surface
-                            )
-                        },
-                        shape = RoundedCornerShape(24.dp),
-                        trailingIcon = {
-                            IconButton(
-                                onClick = {
-                                    onEvent(MensajeEvent.ContenidoChange(inputState.text.toString()))
-                                    onEvent(MensajeEvent.Save)
-                                    inputState.edit {
-                                        delete(0, inputState.text.length)
+                    if (selectedImages.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            selectedImages.forEach { uri ->
+                                Box(modifier = Modifier.size(70.dp)) {
+                                    AsyncImage(
+                                        model = uri,
+                                        contentDescription = "Sincronizador de imagen en el contenedor",
+                                        modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
+                                    )
+                                    IconButton(
+                                        onClick = {  viewModel.removeImage(uri)  },
+                                        modifier = Modifier.align(Alignment.TopEnd).size(20.dp)
+                                    ) {
+                                        Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
                                     }
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Send,
-                                    contentDescription = "Enviar",
-                                    tint = MaterialTheme.colorScheme.surface
-                                )
                             }
-                        },
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
-                            focusedContainerColor = MaterialTheme.colorScheme.secondary,
-                        )
-                    )
+                        }
+                    }
 
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextField(
+                            state = inputState,
+                            lineLimits = TextFieldLineLimits.SingleLine,
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text("Escribe un mensaje...",
+                                color = MaterialTheme.colorScheme.surface
+                            )
+                            },
+                            shape = RoundedCornerShape(24.dp),
+                            trailingIcon = {
+                                IconButton(
+                                    onClick = {
+                                        onEvent(MensajeEvent.ContenidoChange(inputState.text.toString()))
+                                        onEvent(MensajeEvent.Save)
+                                        inputState.edit {
+                                            delete(0, inputState.text.length)
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Send,
+                                        contentDescription = "Enviar",
+                                        tint = MaterialTheme.colorScheme.surface
+                                    )
+                                }
+                            },
+                            colors = TextFieldDefaults.colors(
+                                unfocusedContainerColor = MaterialTheme.colorScheme.secondary,
+                                focusedContainerColor = MaterialTheme.colorScheme.secondary,
+                            )
+                        )
+                    }
                 }
             }
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp)
-        ) {
-            LazyColumn(
+        ) { padding ->
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(horizontal = 16.dp)
             ) {
-                items(mensajes) { mensaje ->
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn() + expandVertically()
-                    ) {
-                        MensajeRow(mensaje)
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    items(mensajes) { mensaje ->
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn() + expandVertically()
+                        ) {
+                            MensajeRow(mensaje)
+                        }
                     }
                 }
             }
