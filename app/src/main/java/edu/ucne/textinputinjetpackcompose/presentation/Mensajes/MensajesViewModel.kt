@@ -133,11 +133,15 @@ class MensajesViewModel @Inject constructor(
             newUris += it.uri ?: return@consume false
             true
         }
-        selectedImages = newUris
+        selectedImages = selectedImages + newUris
         return remaining
     }
 
+    fun removeImage(uri: Uri) {
+        selectedImages = selectedImages.filterNot { it == uri }
+    }
 }
+
 
 fun MensajeUiState.toEntity() = MensajeEntity(
     mensajeId = mensajeId,
