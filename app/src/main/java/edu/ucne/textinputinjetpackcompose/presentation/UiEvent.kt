@@ -1,4 +1,6 @@
 package edu.ucne.textinputinjetpackcompose.presentation
 
-class UiEvent {
+sealed class UiEvent {
+    object NavigateUp : UiEvent()
+    data class ShowSnackbar(val message: String) : UiEvent()
 }
