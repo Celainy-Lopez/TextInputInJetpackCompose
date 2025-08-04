@@ -1,5 +1,13 @@
 package edu.ucne.textinputinjetpackcompose.presentation.Mensajes
 
+import android.net.Uri
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.foundation.content.consume
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -110,6 +118,25 @@ class MensajesViewModel @Inject constructor(
             it.copy(tipoRemitente = tipoRemitente)
         }
     }
+
+    //Nuevo Mensaje
+    val messageState = TextFieldState()
+
+    //Imagenes para enviar con el siguiente mensaje
+    var selectedImages by mutableStateOf<List<Uri>>(emptyList())
+    @OptIn(ExperimentalFoundationApi::class)
+    fun handleContent(
+        transferableContent: TransferableContent
+    ): TransferableContent? {
+        val newUris = mutableListOf<Uri>()
+        val remaining = transferableContent.consume {
+            newUris += it.uri ?: return@consume false
+            true
+        }
+        selectedImages = newUris
+        return remaining
+    }
+
 }
 
 fun MensajeUiState.toEntity() = MensajeEntity(
@@ -119,3 +146,4 @@ fun MensajeUiState.toEntity() = MensajeEntity(
     remitente = remitente ?: "",
     tipoRemitente = tipoRemitente ?: "",
 )
+
