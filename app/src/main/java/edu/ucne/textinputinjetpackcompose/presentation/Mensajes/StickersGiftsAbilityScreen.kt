@@ -15,15 +15,18 @@ import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -33,10 +36,6 @@ fun StickersGiftsAbility(
     goBack: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val selectedImages by remember { derivedStateOf { viewModel.selectedImages } }
-
-
-
 
     LaunchedEffect(Unit) {
         viewModel.getMensajes()
@@ -56,10 +55,10 @@ fun MensajeBodyScreenAbility(
     onEvent: (MensajeEvent) -> Unit,
     goBack: () -> Unit,
     viewModel: MensajesViewModel = hiltViewModel(),
-
     ) {
     val inputState = rememberTextFieldState()
     val mensajes = uiState.mensajes.sortedBy { it.fecha }
+    val selectedImages = viewModel.selectedImages
 
     Scaffold(
         topBar = {
@@ -97,6 +96,29 @@ fun MensajeBodyScreenAbility(
                                 onClick = { onEvent(MensajeEvent.TipoRemitenteChange(tipo)) }
                             )
                             Text(text = tipo)
+                        }
+                    }
+                }
+
+                if (selectedImages.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        selectedImages.forEach { uri ->
+                            Box(modifier = Modifier.size(70.dp)) {
+                                AsyncImage(
+                                    model = uri,
+                                    contentDescription = "Sincronizador de imagen en el contenedor",
+                                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(8.dp)),
+                                    )
+                                IconButton(
+                                    onClick = {  viewModel.removeImage(uri)  },
+                                    modifier = Modifier.align(Alignment.TopEnd).size(20.dp)
+                                ) {
+                                    Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                                }
+                            }
                         }
                     }
                 }
@@ -142,7 +164,6 @@ fun MensajeBodyScreenAbility(
                             focusedContainerColor = MaterialTheme.colorScheme.secondary,
                         )
                     )
-
                 }
             }
         }
