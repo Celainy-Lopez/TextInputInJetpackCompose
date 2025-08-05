@@ -1,4 +1,5 @@
 package edu.ucne.textinputinjetpackcompose.di
+
 import android.content.Context
 import androidx.room.Room
 import dagger.Module
@@ -14,14 +15,14 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideTextInputInJetpackComposeDb(@ApplicationContext appContext: Context) =
+    fun provideTextInputInJetpackComposeDb(@ApplicationContext contexto: Context) =
         Room.databaseBuilder(
-            appContext,
-            TextInputInJetpackComposeDb::class.java,
-            "TextInputInJetpackCompose.db"
+            context = contexto,
+            klass = TextInputInJetpackComposeDb::class.java,
+            name = "TextInputInJetpackComposeDb.db"
         ).fallbackToDestructiveMigration()
             .build()
 
     @Provides
-    fun provideMensajeDao(textInputInJetpackComposeDb: TextInputInJetpackComposeDb) = textInputInJetpackComposeDb.MensajeDao()
+    fun provideMensajeDao(ccdb: TextInputInJetpackComposeDb) = ccdb.MensajeDao()
 }
