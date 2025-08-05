@@ -4,14 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import dagger.hilt.android.AndroidEntryPoint
+import edu.ucne.textinputinjetpackcompose.presentation.collarCustomizationScreen.CollarScreen
 import edu.ucne.textinputinjetpackcompose.ui.theme.TextInputInJetpackComposeTheme
 
 @AndroidEntryPoint
@@ -22,10 +24,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             TextInputInJetpackComposeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    Spacer(Modifier.height(innerPadding.calculateTopPadding()))
+                    CollarScreen(Modifier.fillMaxSize())
                 }
             }
         }
