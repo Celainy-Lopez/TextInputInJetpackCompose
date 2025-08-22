@@ -8,8 +8,15 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun StateBasedTextField() {
-    val usernameState = rememberTextFieldState()
 
+
+
+
+
+
+
+
+    val usernameState = rememberTextFieldState()
     TextField(
         state = usernameState,
         inputTransformation = InputTransformation {  },
@@ -17,4 +24,12 @@ fun StateBasedTextField() {
         lineLimits = TextFieldLineLimits.SingleLine,
         placeholder = { Text("Ej: Juan Pérez") }
     )
+
+
+
+
+
+
+
+
 }
